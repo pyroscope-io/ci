@@ -27,9 +27,7 @@ type CIProvider interface {
 	InferContext() (CIContext, error)
 }
 
-var providers []CIProvider = []CIProvider{
-	&GithubActionsDetector{},
-}
+var providers = []CIProvider{&GithubActionsDetector{}}
 
 func detectCIProvider() (CIProvider, error) {
 	// Find the first correct provider

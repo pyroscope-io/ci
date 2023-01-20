@@ -46,7 +46,7 @@ func (w *Exporter) Export(items map[string]flamebearer.FlamebearerProfile) error
 }
 
 // Write writes a flamebearer in json format to its dataDir
-func (w *Exporter) Write(path string, flame flamebearer.FlamebearerProfile) error {
+func (*Exporter) Write(path string, flame flamebearer.FlamebearerProfile) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -57,11 +57,7 @@ func (w *Exporter) Write(path string, flame flamebearer.FlamebearerProfile) erro
 		return err
 	}
 
-	if err := f.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return f.Close()
 }
 
 func ensureDirExists(dir string) error {

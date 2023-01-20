@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
+	osExec "os/exec"
 	"os/signal"
 	"time"
 
@@ -60,7 +60,7 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 	signal.Notify(c)
 	env := fmt.Sprintf("PYROSCOPE_ADHOC_SERVER_ADDRESS=http://localhost:%d", listener.Addr().(*net.TCPAddr).Port)
 	startingTime := time.Now().UTC()
-	cmd := exec.Command(args[0], args[1:]...)
+	cmd := osExec.Command(args[0], args[1:]...)
 	cmd.Env = append(os.Environ(), env)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
@@ -89,5 +89,4 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 			}
 		}
 	}
-
 }

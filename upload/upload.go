@@ -35,7 +35,7 @@ type UploadMultipleCfg struct {
 	CommitSHA     string
 	Filepath      []string
 	ServerAddress string
-	ApiKey        string
+	APIKey        string
 	SpyName       string
 }
 
@@ -54,7 +54,7 @@ func (u *Uploader) UploadMultiple(ctx context.Context, cfg UploadMultipleCfg) er
 				commitSHA:     cfg.CommitSHA,
 				serverAddress: cfg.ServerAddress,
 				spyName:       cfg.SpyName,
-				apiKey:        cfg.ApiKey,
+				apiKey:        cfg.APIKey,
 				date:          cfg.Date,
 				filepath:      f,
 			}

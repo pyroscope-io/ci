@@ -17,7 +17,7 @@ import (
 	"github.com/pyroscope-io/client/pyroscope"
 )
 
-var availableProfileTypes []pyroscope.ProfileType = []pyroscope.ProfileType{
+var availableProfileTypes = []pyroscope.ProfileType{
 	pyroscope.ProfileCPU,
 	pyroscope.ProfileInuseObjects,
 	pyroscope.ProfileAllocObjects,
@@ -111,7 +111,6 @@ func install(basePath string, appName string, profileTypes []string) error {
 					Path:        dirName,
 					PackageName: packageName,
 				}
-
 			}
 
 			return nil

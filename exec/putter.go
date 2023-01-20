@@ -27,7 +27,7 @@ func NewPutter() *Putter {
 	}
 }
 
-func (p *Putter) Put(ctx context.Context, pi *storage.PutInput) error {
+func (p *Putter) Put(_ context.Context, pi *storage.PutInput) error {
 	p.Lock()
 	if val, ok := p.buffer[pi.Key.AppName()]; ok {
 		// This writes to val
@@ -49,7 +49,7 @@ func (p *Putter) GetPutItems() map[string]flamebearer.FlamebearerProfile {
 	return dst
 }
 
-func (p *Putter) putInputToProfile(pi *storage.PutInput) flamebearer.FlamebearerProfile {
+func (*Putter) putInputToProfile(pi *storage.PutInput) flamebearer.FlamebearerProfile {
 	return flamebearer.NewProfile(flamebearer.ProfileConfig{
 		Name:     pi.Key.AppName(),
 		MaxNodes: -1,

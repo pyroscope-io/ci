@@ -58,7 +58,7 @@ func (u *Uploader) Upload(ctx context.Context, items map[string]flamebearer.Flam
 	return g.Wait()
 }
 
-func (u *Uploader) uploadSingle(ctx context.Context, item flamebearer.FlamebearerProfile) error {
+func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerProfile) error {
 	serverAddress := u.cfg.serverAddress
 	apiKey := u.cfg.apiKey
 	commitSHA := u.cfg.commitSHA

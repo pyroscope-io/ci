@@ -26,7 +26,7 @@ func execCmd() *ffcli.Command {
 		Exec: func(_ context.Context, args []string) error {
 			return exec.Exec(args, exec.ExecCfg{
 				OutputDir:     *outputDir,
-				ApiKey:        *apiKey,
+				APIKey:        *apiKey,
 				ServerAddress: *serverAddress,
 				CommitSHA:     *commitSHA,
 				NoUpload:      *noUpload,

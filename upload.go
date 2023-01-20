@@ -34,15 +34,16 @@ func uploadCmd() *ffcli.Command {
 			}
 
 			if len(args) > 1 && *applicationName != "" {
-				return fmt.Errorf("multiple files are passed but the same applicationName would apply. this is most likely not wanted. if that's the desired behaviour, run the 'upload' command once per file. aborting.")
+				return fmt.Errorf("multiple files are passed but the same applicationName would apply. " +
+					"this is most likely not wanted. if that's the desired behaviour, run the 'upload' command once per file. aborting.")
 			}
 
 			logger := logrus.New()
 			uploader := upload.NewUploader(logger)
 
 			now := time.Now()
-			if err := uploader.UploadMultiple(ctx, upload.UploadMultipleCfg{
-				ApiKey:        *apiKey,
+			return uploader.UploadMultiple(ctx, upload.UploadMultipleCfg{
+				APIKey:        *apiKey,
 				AppName:       *applicationName,
 				Branch:        *branch,
 				Date:          now,
@@ -50,11 +51,7 @@ func uploadCmd() *ffcli.Command {
 				Filepath:      args,
 				ServerAddress: *serverAddress,
 				SpyName:       *spyName,
-			}); err != nil {
-				return err
-			}
-
-			return nil
+			})
 		},
 	}
 }

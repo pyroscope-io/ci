@@ -9,7 +9,7 @@ import (
 type ExecCfg struct {
 	OutputDir     string
 	ServerAddress string
-	ApiKey        string
+	APIKey        string
 	CommitSHA     string
 	Branch        string
 	NoUpload      bool
@@ -46,7 +46,7 @@ func Exec(args []string, cfg ExecCfg) error {
 
 	ciCtx := DetectContext(cfg)
 	uploader := NewUploader(logger, UploadConfig{
-		apiKey:        cfg.ApiKey,
+		apiKey:        cfg.APIKey,
 		serverAddress: cfg.ServerAddress,
 		commitSHA:     ciCtx.CommitSHA,
 		branch:        ciCtx.BranchName,

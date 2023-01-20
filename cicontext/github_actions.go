@@ -10,7 +10,7 @@ import (
 
 type GithubActionsDetector struct{}
 
-func (g *GithubActionsDetector) IsProvider() bool {
+func (*GithubActionsDetector) IsProvider() bool {
 	return os.Getenv("GITHUB_ACTION") != ""
 }
 
@@ -53,7 +53,7 @@ func (g *GithubActionsDetector) InferContext() (CIContext, error) {
 	return ciCtx, errs
 }
 
-func (g *GithubActionsDetector) isPR() bool {
+func (*GithubActionsDetector) isPR() bool {
 	return os.Getenv("GITHUB_EVENT_NAME") == "pull_request"
 }
 
