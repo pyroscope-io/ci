@@ -3,7 +3,6 @@ package upload
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -42,7 +41,7 @@ type UploadMultipleCfg struct {
 // Upload uploads files to the target server's /api/ci-events endpoint
 // It assumes all cfg values are non-zero
 func (u *Uploader) UploadMultiple(ctx context.Context, cfg UploadMultipleCfg) error {
-	g, ctx := errgroup.WithContext(ctx)
+	g, _ := errgroup.WithContext(ctx)
 
 	for _, f := range cfg.Filepath {
 		f := f
@@ -78,7 +77,7 @@ type UploadSingleCfg struct {
 	spyName       string
 }
 
-//
+// TODO
 func (u *Uploader) upload(cfg UploadSingleCfg) error {
 	file, err := os.Open(cfg.filepath)
 	if err != nil {
@@ -111,7 +110,8 @@ func (u *Uploader) upload(cfg UploadSingleCfg) error {
 	defer res.Body.Close()
 
 	// read all the response body
-	respBody, err := ioutil.ReadAll(res.Body)
+	var respBody []byte
+	_, err = res.Body.Read(respBody)
 	if err != nil {
 		return fmt.Errorf("read response body: %v", err)
 	}

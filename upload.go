@@ -35,7 +35,7 @@ func uploadCmd() *ffcli.Command {
 
 			if len(args) > 1 && *applicationName != "" {
 				return fmt.Errorf("multiple files are passed but the same applicationName would apply. " +
-					"this is most likely not wanted. if that's the desired behaviour, run the 'upload' command once per file. aborting.")
+					"this is most likely not wanted. if that's the desired behaviour, run the 'upload' command once per file. aborting")
 			}
 
 			logger := logrus.New()

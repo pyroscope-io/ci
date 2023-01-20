@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -98,7 +97,8 @@ func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerP
 	defer res.Body.Close()
 
 	// read all the response body
-	respBody, err := ioutil.ReadAll(res.Body)
+	var respBody []byte
+	_, err = res.Body.Read(respBody)
 	if err != nil {
 		return fmt.Errorf("read response body: %v", err)
 	}

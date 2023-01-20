@@ -83,7 +83,7 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 		case <-ticker.C:
 			if !process.Exists(cmd.Process.Pid) {
 				logrus.Debug("child process exited")
-				duration = time.Now().Sub(startingTime)
+				duration = time.Since(startingTime)
 
 				return p.ingester.GetIngestedItems(), duration, cmd.Wait()
 			}
