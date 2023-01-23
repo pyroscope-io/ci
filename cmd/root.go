@@ -10,7 +10,7 @@ import (
 
 func RootCmd() {
 	root := &ffcli.Command{
-		Subcommands: []*ffcli.Command{installCmd(), execCmd(), uploadCmd()},
+		Subcommands: []*ffcli.Command{installCmd(), execCmd()},
 	}
 
 	if err := root.ParseAndRun(context.Background(), os.Args[1:]); err != nil {
