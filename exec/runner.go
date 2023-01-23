@@ -66,7 +66,7 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	if err := cmd.Start(); err != nil {
-		return m, duration, err
+		return p.ingester.GetIngestedItems(), duration, err
 	}
 	defer func() {
 		signal.Stop(c)
@@ -79,7 +79,8 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 		case s := <-c:
 			_ = process.SendSignal(cmd.Process, s)
 		case err := <-done:
-			return m, duration, err
+			duration = time.Since(startingTime)
+			return p.ingester.GetIngestedItems(), duration, err
 		case <-ticker.C:
 			if !process.Exists(cmd.Process.Pid) {
 				logrus.Debug("child process exited")

@@ -3,6 +3,7 @@ package exec
 import (
 	"context"
 
+	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +30,7 @@ func Exec(args []string, cfg ExecCfg) error {
 	logger.Debug("exec'ing command")
 	ingestedItems, duration, err := runner.Run(args)
 	if err != nil {
-		logrus.Debug("ignoring error")
+		logger.Errorf("process errored: %s. will still try to upload ingested data", err)
 		//return err
 	}
 
@@ -46,6 +47,8 @@ func Exec(args []string, cfg ExecCfg) error {
 
 	ciCtx := DetectContext(cfg)
 	uploader := NewUploader(logger, UploadConfig{
+		// Generate a shared ID that will group different profiles
+		id:            ksuid.New(),
 		apiKey:        cfg.APIKey,
 		serverAddress: cfg.ServerAddress,
 		commitSHA:     ciCtx.CommitSHA,

@@ -64,6 +64,7 @@ require (
 	github.com/pyroscope-io/godeltaprof v0.1.0 // indirect
 	github.com/pyroscope-io/jfr-parser v0.5.2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/shirou/gopsutil v3.21.4+incompatible // indirect
 	github.com/slok/go-http-metrics v0.9.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.6 // indirect

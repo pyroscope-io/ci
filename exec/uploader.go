@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
+	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -19,6 +20,7 @@ type UploadConfig struct {
 	commitSHA     string
 	branch        string
 	duration      time.Duration
+	id            ksuid.KSUID
 }
 
 type Uploader struct {
@@ -49,7 +51,7 @@ func (u *Uploader) Upload(ctx context.Context, items map[string]flamebearer.Flam
 		name := name
 
 		g.Go(func() error {
-			u.logger.Debug("uploading", name)
+			u.logger.Debug("uploading ", name)
 			return u.uploadSingle(ctx, f)
 		})
 	}
@@ -63,6 +65,7 @@ func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerP
 	commitSHA := u.cfg.commitSHA
 	branch := u.cfg.branch
 	duration := u.cfg.duration.String()
+	id := u.cfg.id.String()
 
 	date := time.Now()
 
@@ -87,6 +90,7 @@ func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerP
 	q.Add("commitSHA", commitSHA)
 	q.Add("branch", branch)
 	q.Add("duration", duration)
+	q.Add("id", id)
 
 	req.URL.RawQuery = q.Encode()
 
