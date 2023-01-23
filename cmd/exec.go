@@ -1,11 +1,11 @@
-package main
+package cmd
 
 import (
 	"context"
 	"flag"
 
 	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/pyroscope-io/ci/exec"
+	"github.com/pyroscope-io/ci/internal/exec"
 )
 
 func execCmd() *ffcli.Command {

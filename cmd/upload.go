@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/pyroscope-io/ci/upload"
+	"github.com/pyroscope-io/ci/internal/upload"
 	"github.com/sirupsen/logrus"
 )
 

@@ -1,6 +1,6 @@
 package exec
 
-import "github.com/pyroscope-io/ci/cicontext"
+import "github.com/pyroscope-io/ci/internal/cicontext"
 
 // Detect tries to detect the CIContext automatically
 // If it cannot, it falls back to the values available in ExecCfg
