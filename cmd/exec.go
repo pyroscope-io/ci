@@ -20,8 +20,8 @@ func execCmd() *ffcli.Command {
 
 	return &ffcli.Command{
 		Name:       "exec",
-		ShortUsage: "",
-		ShortHelp:  "",
+		ShortHelp:  "exec a command and save its profiling data",
+		ShortUsage: "pyro-ci exec -- make test",
 		FlagSet:    execFlagSet,
 		Exec: func(_ context.Context, args []string) error {
 			cmdError, err := exec.Exec(args, exec.ExecCfg{
