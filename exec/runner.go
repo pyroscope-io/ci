@@ -26,7 +26,7 @@ type Runner struct {
 
 func NewRunner(logger *logrus.Logger) (*Runner, error) {
 	ingester := NewIngester()
-	handler := server.NewIngestHandler(logger, ingester, func(*ingestion.IngestInput) {}, httputils.NewDefaultHelper(logger), true)
+	handler := server.NewIngestHandler(logger, ingester, func(*ingestion.IngestInput) {}, httputils.NewDefaultHelper(logger))
 
 	return &Runner{
 		ingester: ingester,

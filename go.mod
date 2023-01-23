@@ -8,11 +8,13 @@ require (
 	github.com/mgechev/revive v1.0.3
 	github.com/peterbourgon/ff/v3 v3.3.0
 	github.com/pyroscope-io/client v0.6.0
-	github.com/pyroscope-io/pyroscope v0.36.0
+	github.com/pyroscope-io/pyroscope v0.36.1-0.20230123073806-a5748178eead
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/sync v0.1.0
 	honnef.co/go/tools v0.3.3
 )
+
+require github.com/segmentio/ksuid v1.0.4
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
@@ -22,7 +24,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/clarkduvall/hyperloglog v0.0.0-20171127014514-a0107a5d8004 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.2 // indirect
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
@@ -64,14 +66,14 @@ require (
 	github.com/pyroscope-io/godeltaprof v0.1.0 // indirect
 	github.com/pyroscope-io/jfr-parser v0.5.2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/shirou/gopsutil v3.21.4+incompatible // indirect
 	github.com/slok/go-http-metrics v0.9.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.6 // indirect
 	github.com/tklauser/numcpus v0.2.2 // indirect
 	github.com/twmb/murmur3 v1.1.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/exp v0.0.0-20221227203929-1b447090c38c // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230118134722-a68e582fa157 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
