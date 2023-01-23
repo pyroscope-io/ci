@@ -1,4 +1,4 @@
-package cmd
+package golang
 
 import (
 	"bufio"
@@ -35,11 +35,12 @@ func installCmd() *ffcli.Command {
 	profileTypesFlag := installFlagSet.String("profileTypes", "all", fmt.Sprintf("list of profileTypes, separated by comma. available types are: %s", availableProfileTypes))
 	appName := installFlagSet.String("applicationName", "", "the name of the application")
 
-	return &ffcli.Command{
+	cmd := &ffcli.Command{
 		Name:       "install",
-		ShortUsage: "",
-		ShortHelp:  "",
-		//	FlagSet: 	flag.NewFlagSet("textctl repeat", flag.ExitOnError)
+		ShortUsage: "pyro-ci go install {packagePath}",
+		ShortHelp:  "Installs the pyroscope agent into test packages",
+		LongHelp: "Given a (list of) {packagePath}, it will recursively find all packages that contains tests." +
+			"Then it will generate a `pyroscope_test.go` file for each package, using the configuration passed as cli flags from this command.",
 		FlagSet: installFlagSet,
 		Exec: func(_ context.Context, args []string) error {
 			if len(args) <= 0 {
@@ -65,6 +66,8 @@ func installCmd() *ffcli.Command {
 			return nil
 		},
 	}
+
+	return cmd
 }
 
 func isTestFile(p string) bool {
