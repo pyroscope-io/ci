@@ -17,18 +17,24 @@ type ExecCfg struct {
 	LogLevel      string
 }
 
-func Exec(args []string, cfg ExecCfg) error {
+// Exec executes a program and exports its captured profiles
+// It works by creating an in-memory pyroscope server
+// Then overwriting the default serverAddress using the PYROSCOPE_ADHOC_SERVER_ADDRESS env var
+// Which then is either uploaded to a) a pyroscope server that supports the /ci API
+// Or b) to a local directory
+//
+// Notice that it returns 2 different errors:
+// cmdError refers to the error of the command exec'd
+// and err to any other error
+func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 	logger := logrus.StandardLogger()
 	lvl, _ := logrus.ParseLevel(cfg.LogLevel)
 	logger.SetLevel(lvl)
 
-	runner, err := NewRunner(logger)
-	if err != nil {
-		return err
-	}
+	runner := NewRunner(logger)
 
 	logger.Debug("exec'ing command")
-	ingestedItems, duration, err := runner.Run(args)
+	ingestedItems, duration, cmdError := runner.Run(args)
 	if err != nil {
 		logger.Errorf("process errored: %s. will still try to upload ingested data", err)
 		//return err
@@ -36,13 +42,13 @@ func Exec(args []string, cfg ExecCfg) error {
 
 	if len(ingestedItems) <= 0 {
 		logger.Info("No profiles were ingested. Nothing to export")
-		return nil
+		return cmdError, err
 	}
 
 	if cfg.NoUpload {
 		logger.Debug("exporting files since NoUpload flag is on")
 		exporter := NewExporter(logger, cfg.OutputDir)
-		return exporter.Export(ingestedItems)
+		return cmdError, exporter.Export(ingestedItems)
 	}
 
 	ciCtx := DetectContext(cfg)
@@ -57,5 +63,5 @@ func Exec(args []string, cfg ExecCfg) error {
 	})
 
 	logger.Debugf("uploading %d profile(s)", len(ingestedItems))
-	return uploader.Upload(context.Background(), ingestedItems)
+	return cmdError, uploader.Upload(context.Background(), ingestedItems)
 }

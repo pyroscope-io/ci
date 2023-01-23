@@ -24,7 +24,7 @@ func execCmd() *ffcli.Command {
 		ShortHelp:  "",
 		FlagSet:    execFlagSet,
 		Exec: func(_ context.Context, args []string) error {
-			return exec.Exec(args, exec.ExecCfg{
+			cmdError, err := exec.Exec(args, exec.ExecCfg{
 				OutputDir:     *outputDir,
 				APIKey:        *apiKey,
 				ServerAddress: *serverAddress,
@@ -33,6 +33,10 @@ func execCmd() *ffcli.Command {
 				Branch:        *branch,
 				LogLevel:      *logLevel,
 			})
+			if err != nil {
+				return err
+			}
+			return cmdError
 		},
 	}
 }

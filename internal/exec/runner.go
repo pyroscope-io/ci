@@ -18,13 +18,12 @@ import (
 )
 
 type Runner struct {
-	//	args    []string
 	handler  http.Handler
 	logger   *logrus.Logger
 	ingester *Ingester
 }
 
-func NewRunner(logger *logrus.Logger) (*Runner, error) {
+func NewRunner(logger *logrus.Logger) *Runner {
 	ingester := NewIngester()
 	handler := server.NewIngestHandler(logger, ingester, func(*ingestion.IngestInput) {}, httputils.NewDefaultHelper(logger))
 
@@ -32,25 +31,27 @@ func NewRunner(logger *logrus.Logger) (*Runner, error) {
 		ingester: ingester,
 		handler:  handler,
 		logger:   logger,
-	}, nil
+	}
 }
 
 // Run executes a command while running a server that ingests data at the /ingest endpoint
 // And returns all data that was ingested
 func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, time.Duration, error) {
 	var m map[string]flamebearer.FlamebearerProfile
-	var duration time.Duration
 
-	http.Handle("/ingest", p.handler)
+	mux := http.NewServeMux()
+	mux.Handle("/ingest", p.handler)
+
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
-		return m, duration, err
+		var zeroDuration time.Duration
+		return m, zeroDuration, err
 	}
 	p.logger.Debugf("Ingester listening to port %d", listener.Addr().(*net.TCPAddr).Port)
 
 	done := make(chan error)
 	go func() {
-		done <- http.Serve(listener, nil)
+		done <- http.Serve(listener, mux)
 	}()
 
 	// start command
@@ -58,15 +59,20 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 	// Note that we don't specify which signals to be sent: any signal to be
 	// relayed to the child process (including SIGINT and SIGTERM).
 	signal.Notify(c)
-	env := fmt.Sprintf("PYROSCOPE_ADHOC_SERVER_ADDRESS=http://localhost:%d", listener.Addr().(*net.TCPAddr).Port)
+
 	startingTime := time.Now().UTC()
+	captureDuration := func() time.Duration {
+		return time.Since(startingTime)
+	}
+
+	env := fmt.Sprintf("PYROSCOPE_ADHOC_SERVER_ADDRESS=http://localhost:%d", listener.Addr().(*net.TCPAddr).Port)
 	cmd := osExec.Command(args[0], args[1:]...)
 	cmd.Env = append(os.Environ(), env)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	if err := cmd.Start(); err != nil {
-		return p.ingester.GetIngestedItems(), duration, err
+		return p.ingester.GetIngestedItems(), captureDuration(), err
 	}
 	defer func() {
 		signal.Stop(c)
@@ -79,14 +85,11 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 		case s := <-c:
 			_ = process.SendSignal(cmd.Process, s)
 		case err := <-done:
-			duration = time.Since(startingTime)
-			return p.ingester.GetIngestedItems(), duration, err
+			return p.ingester.GetIngestedItems(), captureDuration(), err
 		case <-ticker.C:
 			if !process.Exists(cmd.Process.Pid) {
 				logrus.Debug("child process exited")
-				duration = time.Since(startingTime)
-
-				return p.ingester.GetIngestedItems(), duration, cmd.Wait()
+				return p.ingester.GetIngestedItems(), captureDuration(), cmd.Wait()
 			}
 		}
 	}
