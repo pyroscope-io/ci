@@ -3,7 +3,7 @@ package cicontext_test
 import (
 	"testing"
 
-	"github.com/pyroscope-io/ci/cicontext"
+	"github.com/pyroscope-io/ci/internal/cicontext"
 )
 
 func TestGithubActions(t *testing.T) {
