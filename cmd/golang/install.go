@@ -7,25 +7,12 @@ import (
 
 	"github.com/peterbourgon/ff/v3/ffcli"
 	"github.com/pyroscope-io/ci/internal/golang/install"
-	"github.com/pyroscope-io/client/pyroscope"
 )
-
-var availableProfileTypes = []pyroscope.ProfileType{
-	pyroscope.ProfileCPU,
-	pyroscope.ProfileInuseObjects,
-	pyroscope.ProfileAllocObjects,
-	pyroscope.ProfileInuseSpace,
-	pyroscope.ProfileAllocSpace,
-	pyroscope.ProfileGoroutines,
-	pyroscope.ProfileMutexCount,
-	pyroscope.ProfileMutexDuration,
-	pyroscope.ProfileBlockCount,
-	pyroscope.ProfileBlockDuration,
-}
 
 func installCmd() *ffcli.Command {
 	installFlagSet := flag.NewFlagSet("install", flag.ExitOnError)
-	profileTypesFlag := installFlagSet.String("profileTypes", "all", fmt.Sprintf("list of profileTypes, separated by comma. available types are: %s", availableProfileTypes))
+	profileTypesFlag := installFlagSet.String("profileTypes", "all",
+		fmt.Sprintf("list of profileTypes, separated by comma. available types are: %s", install.AvailableProfileTypes))
 	appName := installFlagSet.String("applicationName", "", "the name of the application")
 
 	cmd := &ffcli.Command{

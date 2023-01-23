@@ -15,7 +15,7 @@ import (
 )
 
 // TODO: maybe upstream should export this?
-var availableProfileTypes = []pyroscope.ProfileType{
+var AvailableProfileTypes = []pyroscope.ProfileType{
 	pyroscope.ProfileCPU,
 	pyroscope.ProfileInuseObjects,
 	pyroscope.ProfileAllocObjects,
