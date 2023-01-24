@@ -20,4 +20,22 @@ jobs:
 
       - run: make test
       - run: make lint
-      - run: make build
+
+  build-matrix:
+    name: Build Matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [amd64, arm64]
+    steps:
+    - uses: actions/checkout@v3
+    - name: asdf_install
+      uses: asdf-vm/actions/install@v1
+    - run: make install-dev-tools
+    # Make asdf aware of globally installed binaries
+    - run: asdf reshim
+    - run: make build
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
