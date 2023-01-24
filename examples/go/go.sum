@@ -1,0 +1,4 @@
+github.com/pyroscope-io/client v0.6.0 h1:rcUFgcnfmuyVYDYT+4d0zfqc8YedOyruHSsUb9ImaBw=
+github.com/pyroscope-io/client v0.6.0/go.mod h1:4h21iOU4pUOq0prKyDlvYRL+SCKsBc5wKiEtV+rJGqU=
+github.com/pyroscope-io/godeltaprof v0.1.0 h1:UBqtjt0yZi4jTxqZmLAs34XG6ycS3vUTlhEUSq4NHLE=
+github.com/pyroscope-io/godeltaprof v0.1.0/go.mod h1:psMITXp90+8pFenXkKIpNhrfmI9saQnPbba27VIaiQE=

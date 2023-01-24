@@ -2,6 +2,7 @@ package exec
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
@@ -37,7 +38,6 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 	ingestedItems, duration, cmdError := runner.Run(args)
 	if err != nil {
 		logger.Errorf("process errored: %s. will still try to upload ingested data", err)
-		//return err
 	}
 
 	if len(ingestedItems) <= 0 {
@@ -48,7 +48,12 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 	if cfg.NoUpload {
 		logger.Debug("exporting files since NoUpload flag is on")
 		exporter := NewExporter(logger, cfg.OutputDir)
-		return cmdError, exporter.Export(ingestedItems)
+		err = exporter.Export(ingestedItems)
+		if err != nil {
+			return cmdError, fmt.Errorf("error exporting data: %w", err)
+		}
+
+		return cmdError, nil
 	}
 
 	ciCtx := DetectContext(cfg)
@@ -63,5 +68,10 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 	})
 
 	logger.Debugf("uploading %d profile(s)", len(ingestedItems))
-	return cmdError, uploader.Upload(context.Background(), ingestedItems)
+	err = uploader.Upload(context.Background(), ingestedItems)
+	if err != nil {
+		return cmdError, fmt.Errorf("uploading profiles: %w", err)
+	}
+
+	return cmdError, nil
 }

@@ -3,9 +3,11 @@ package cmd
 import (
 	"context"
 	"flag"
+	"fmt"
 
 	"github.com/peterbourgon/ff/v3/ffcli"
 	"github.com/pyroscope-io/ci/internal/exec"
+	"github.com/sirupsen/logrus"
 )
 
 func execCmd() *ffcli.Command {
@@ -24,6 +26,10 @@ func execCmd() *ffcli.Command {
 		ShortUsage: "pyro-ci exec -- make test",
 		FlagSet:    execFlagSet,
 		Exec: func(_ context.Context, args []string) error {
+			if len(args) <= 0 {
+				return fmt.Errorf("at least one argument is required")
+			}
+
 			cmdError, err := exec.Exec(args, exec.ExecCfg{
 				OutputDir:     *outputDir,
 				APIKey:        *apiKey,
@@ -33,8 +39,15 @@ func execCmd() *ffcli.Command {
 				Branch:        *branch,
 				LogLevel:      *logLevel,
 			})
+
+			// If exec failed, print it first
 			if err != nil {
 				return err
+			}
+
+			// Add additional context, since it may be weird to just see "exit eror code X"
+			if cmdError != nil {
+				logrus.Error("error in spawned command")
 			}
 			return cmdError
 		},
