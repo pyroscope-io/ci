@@ -1,6 +1,7 @@
 on:
   release:
-    types: [created]
+    # https://stackoverflow.com/a/61066906
+    types: [published]
 
 jobs:
   publishmatrix:
