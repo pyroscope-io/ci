@@ -33,7 +33,7 @@ func installCmd() *ffcli.Command {
 			}
 
 			if *appName == "" {
-				return fmt.Errorf("applicationName is required")
+				return fmt.Errorf("--applicationName is required")
 			}
 
 			for _, a := range args {
