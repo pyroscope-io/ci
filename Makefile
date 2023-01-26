@@ -1,6 +1,6 @@
 .PHONY: build
 build: ## Builds the binary
-	go build -o bin/pyro-ci .
+	go build -o bin/pyroscope-ci .
 
 .PHONY: test
 test: ## Runs the test suite

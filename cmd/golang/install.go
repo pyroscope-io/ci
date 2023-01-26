@@ -17,7 +17,7 @@ func installCmd() *ffcli.Command {
 
 	cmd := &ffcli.Command{
 		Name:       "install",
-		ShortUsage: "pyro-ci go install {packagePath}",
+		ShortUsage: "pyroscope-ci go install {packagePath}",
 		ShortHelp:  "Installs the pyroscope agent into test packages",
 		LongHelp: "Given a (list of) {packagePath}, it will recursively find all packages that contains tests." +
 			"Then it will generate a `pyroscope_test.go` file for each package, using the configuration passed as cli flags from this command.",
