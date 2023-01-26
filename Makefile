@@ -6,6 +6,10 @@ build: ## Builds the binary
 test: ## Runs the test suite
 	go test -race $(shell go list ./...)
 
+.PHONY: test-install-script
+test-install-script: ## Tests the install in a docker container
+	docker run -v $(shell PWD)/install.sh:/data/install.sh:ro -it alpine/curl:latest sh -c '/data/install.sh'
+
 .PHONY: godoc
 godoc: ## Generate godoc
 	godoc -http :8090
