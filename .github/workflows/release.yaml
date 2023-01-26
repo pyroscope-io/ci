@@ -20,3 +20,6 @@ jobs:
         goarch: ${{ matrix.goarch }}
         binary_name: "pyroscope-ci"
         extra_files: LICENSE README.md
+        # The default naming pattern uses the release name
+        # Which makes difficult for scripts to download the correct version
+        asset_name: pyroscope-ci-${{ matrix.goos }}-${{ matrix.goarch }}
