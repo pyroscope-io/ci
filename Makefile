@@ -6,6 +6,10 @@ build: ## Builds the binary
 test: ## Runs the test suite
 	go test -race $(shell go list ./...)
 
+.PHONY: test-install-script
+test-install-script: ## Tests the install in a docker container
+	docker run -v $(shell PWD)/install.sh:/data/install.sh:ro -it alpine/curl:latest sh -c '/data/install.sh'
+
 .PHONY: godoc
 godoc: ## Generate godoc
 	godoc -http :8090
@@ -18,6 +22,11 @@ lint: ## Run the lint across the codebase
 .PHONY: install-dev-tools
 install-dev-tools: ## Install dev tools
 	cat tools/tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI {} go install {}
+
+.PHONY: shellcheck
+shellcheck: ## runs shellcheck against install.sh
+	shellcheck install.sh
+
 
 .PHONY: help
 help: ## Show this help
