@@ -23,3 +23,4 @@ jobs:
         # The default naming pattern uses the release name
         # Which makes difficult for scripts to download the correct version
         asset_name: pyroscope-ci-${{ matrix.goos }}-${{ matrix.goarch }}
+        pre_command: export CGO_ENABLED=0
