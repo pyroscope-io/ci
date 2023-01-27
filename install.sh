@@ -6,6 +6,8 @@ VERSION="${1:-latest}"
 
 # https://en.wikipedia.org/wiki/Uname
 case $(uname -sm) in
+"Darwin arm64") target="darwin-arm64" ;;
+"Darwin x86_64") target="darwin-amd64" ;;
 "Linux x86_64") target="linux-amd64" ;;
 "Linux aarch64") target="linux-arm64" ;;
 *)
