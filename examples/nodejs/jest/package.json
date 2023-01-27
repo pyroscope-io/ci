@@ -1,0 +1,14 @@
+{
+  "name": "jest-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test:debug": "DEBUG='pyroscope*' yarn test",
+    "test": "jest --numWorkers=1 --no-cache"
+  },
+  "devDependencies": {
+    "@pyroscope/nodejs": "^0.2.5",
+    "jest": "^29.4.1"
+  }
+}
