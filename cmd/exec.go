@@ -12,7 +12,7 @@ import (
 
 func execCmd() *ffcli.Command {
 	execFlagSet := flag.NewFlagSet("exec", flag.ExitOnError)
-	outputDir := execFlagSet.String("outputDir", "pyroscope-ci", "where the generated profiles will be saved to. only available if --no-upload is set")
+	outputDir := execFlagSet.String("outputDir", "pyroscope-ci-output", "where the generated profiles will be saved to. only available if --no-upload is set")
 	serverAddress := execFlagSet.String("serverAddress", "https://pyroscope.cloud", "")
 	apiKey := execFlagSet.String("apiKey", "", "")
 	commitSHA := execFlagSet.String("commitSHA", "", "the commit sha")
