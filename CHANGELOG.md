@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/pyroscope-io/ci/compare/v1.1.0...v1.2.0) (2023-02-02)
+
+
+### Features
+
+* allow uploading and exporting at the same time ([#26](https://github.com/pyroscope-io/ci/issues/26)) ([4325d2a](https://github.com/pyroscope-io/ci/commit/4325d2a953c9908d7899af418325bec4b9bf64f6))
+
+
+### Bug Fixes
+
+* change default output-dir ([#24](https://github.com/pyroscope-io/ci/issues/24)) ([84afa2d](https://github.com/pyroscope-io/ci/commit/84afa2d9c232866d0cffc0a90892cb41f5ca23d9))
+
 ## [1.1.0](https://github.com/pyroscope-io/ci/compare/v1.0.0...v1.1.0) (2023-01-27)
 
 
