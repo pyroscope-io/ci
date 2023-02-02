@@ -12,12 +12,14 @@ import (
 
 func execCmd() *ffcli.Command {
 	execFlagSet := flag.NewFlagSet("exec", flag.ExitOnError)
-	outputDir := execFlagSet.String("outputDir", "pyroscope-ci-output", "where the generated profiles will be saved to. only available if --no-upload is set")
+
+	export := execFlagSet.Bool("export", false, "exports data to a local directory, used in conjunction with --outputDir")
+	outputDir := execFlagSet.String("outputDir", "pyroscope-ci-output", "where the generated profiles will be saved to. only available if --export is set")
 	serverAddress := execFlagSet.String("serverAddress", "https://pyroscope.cloud", "")
 	apiKey := execFlagSet.String("apiKey", "", "")
 	commitSHA := execFlagSet.String("commitSHA", "", "the commit sha")
 	branch := execFlagSet.String("branch", "", "")
-	noUpload := execFlagSet.Bool("noUpload", false, "whether to upload automatically or to store into a local directory")
+	noUpload := execFlagSet.Bool("noUpload", false, "disables uploading")
 	logLevel := execFlagSet.String("logLevel", "info", "")
 
 	return &ffcli.Command{
@@ -38,6 +40,7 @@ func execCmd() *ffcli.Command {
 				NoUpload:      *noUpload,
 				Branch:        *branch,
 				LogLevel:      *logLevel,
+				Export:        *export,
 			})
 
 			// If exec failed, print it first
