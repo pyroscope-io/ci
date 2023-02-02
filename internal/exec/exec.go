@@ -15,14 +15,17 @@ type ExecCfg struct {
 	CommitSHA     string
 	Branch        string
 	NoUpload      bool
+	Export        bool
 	LogLevel      string
 }
 
 // Exec executes a program and exports its captured profiles
 // It works by creating an in-memory pyroscope server
 // Then overwriting the default serverAddress using the PYROSCOPE_ADHOC_SERVER_ADDRESS env var
-// Which then is either uploaded to a) a pyroscope server that supports the /ci API
-// Or b) to a local directory
+// Which then is uploaded to
+// a) a pyroscope server that supports the /ci API
+// b) to a local directory
+// c) both
 //
 // Notice that it returns 2 different errors:
 // cmdError refers to the error of the command exec'd
@@ -33,6 +36,11 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 	logger.SetLevel(lvl)
 
 	runner := NewRunner(logger)
+
+	if !cfg.Export && cfg.NoUpload {
+		logger.Warn("not uploading nor exporting, this does not look intended. use --export or disable --noUpload")
+		return nil, nil
+	}
 
 	logger.Debug("exec'ing command")
 	ingestedItems, duration, cmdError := runner.Run(args)
@@ -45,14 +53,17 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 		return cmdError, err
 	}
 
-	if cfg.NoUpload {
-		logger.Debug("exporting files since NoUpload flag is on")
+	if cfg.Export {
+		logger.Debug("exporting files to ", cfg.OutputDir)
 		exporter := NewExporter(logger, cfg.OutputDir)
 		err = exporter.Export(ingestedItems)
 		if err != nil {
 			return cmdError, fmt.Errorf("error exporting data: %w", err)
 		}
+	}
 
+	if cfg.NoUpload {
+		logger.Debug("not uploading since --noUpload flag is turned on")
 		return cmdError, nil
 	}
 

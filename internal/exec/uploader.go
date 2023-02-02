@@ -75,6 +75,7 @@ func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerP
 	}
 
 	file := bytes.NewReader(marshalled)
+
 	// TODO: get the whole url from the config?
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/ci-events", serverAddress), file)
 	if err != nil {
@@ -104,7 +105,7 @@ func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerP
 	var respBody []byte
 	_, err = res.Body.Read(respBody)
 	if err != nil {
-		return fmt.Errorf("read response body: %v", err)
+		return fmt.Errorf("error reading response body: '%v'. the request had statusCode %d", err, res.StatusCode)
 	}
 
 	if res.StatusCode != http.StatusOK {
