@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/pyroscope-io/ci/compare/v1.2.0...v1.2.1) (2023-02-07)
+
+
+### Bug Fixes
+
+* read response body correctly ([#27](https://github.com/pyroscope-io/ci/issues/27)) ([df3d8f0](https://github.com/pyroscope-io/ci/commit/df3d8f05921cd800d757e62e554e7504436f3e83))
+
 ## [1.2.0](https://github.com/pyroscope-io/ci/compare/v1.1.0...v1.2.0) (2023-02-02)
 
 
