@@ -3,6 +3,7 @@ package upload
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -110,8 +111,7 @@ func (u *Uploader) upload(cfg UploadSingleCfg) error {
 	defer res.Body.Close()
 
 	// read all the response body
-	var respBody []byte
-	_, err = res.Body.Read(respBody)
+	respBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("read response body: %v", err)
 	}
@@ -122,48 +122,3 @@ func (u *Uploader) upload(cfg UploadSingleCfg) error {
 
 	return nil
 }
-
-//func (u *Uploader) upload(appName string, branch string, date time.Time, commitSHA string, filepath string, serverAddress string, apiKey string, spyName string) error {
-//	file, err := os.Open(filepath)
-//	if err != nil {
-//		return err
-//	}
-//
-//	// TODO: timeouts and whatnot
-//	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/ci-events", serverAddress), file)
-//	if err != nil {
-//		return err
-//	}
-//
-//	if apiKey != "" {
-//		req.Header.Add("Authorization", "Bearer "+apiKey)
-//	}
-//
-//	q := req.URL.Query()
-//	q.Add("date", date.Format(time.RFC3339))
-//	q.Add("name", appName)
-//	q.Add("branch", branch)
-//	q.Add("commitSHA", commitSHA)
-//	q.Add("spyName", spyName)
-//
-//	req.URL.RawQuery = q.Encode()
-//
-//	fmt.Println("doing")
-//	res, err := u.httpClient.Do(req)
-//	if err != nil {
-//		return err
-//	}
-//	defer res.Body.Close()
-//
-//	// read all the response body
-//	respBody, err := ioutil.ReadAll(res.Body)
-//	if err != nil {
-//		return fmt.Errorf("read response body: %v", err)
-//	}
-//
-//	if res.StatusCode != http.StatusOK {
-//		return fmt.Errorf("statusCode '%d'. body '%s'", res.StatusCode, respBody)
-//	}
-//
-//	return nil
-//}
