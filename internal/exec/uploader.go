@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -101,9 +102,8 @@ func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerP
 	}
 	defer res.Body.Close()
 
-	// read all the response body
-	var respBody []byte
-	_, err = res.Body.Read(respBody)
+	respBody, err := io.ReadAll(res.Body)
+
 	if err != nil {
 		return fmt.Errorf("error reading response body: '%v'. the request had statusCode %d", err, res.StatusCode)
 	}
