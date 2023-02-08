@@ -37,5 +37,6 @@ if ! command -v ./pyroscope-ci >/dev/null; then
   exit 1
 fi
 
-echo "pyroscope-ci has been downloaded locally"
-echo "run ./pyroscope-ci --help for more information."
+echo "pyroscope-ci has been downloaded locally to $(pwd)"
+echo "For more information, run"
+echo "$(pwd)/pyroscope-ci --help"
