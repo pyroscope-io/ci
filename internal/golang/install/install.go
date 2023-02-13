@@ -3,11 +3,7 @@ package install
 import (
 	"bufio"
 	"fmt"
-	"go/parser"
-	"go/token"
 	"os"
-	"path"
-	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -33,47 +29,7 @@ var AvailableProfileTypes = []pyroscope.ProfileType{
 // Then it generates a `pyroscope_test.go` file for each package
 // With the profile type and app name specified
 func Install(basePath string, appName string, profileTypes []string) error {
-	type TestPackage struct {
-		Path        string
-		PackageName string
-	}
-
-	// Use a map to not have any duplicates
-	testPackages := make(map[string]TestPackage)
-
-	// Find all test files
-	err := filepath.Walk(basePath,
-		func(p string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.IsDir() {
-				return nil
-			}
-
-			if isTestFile(p) {
-				dirName, _ := filepath.Split(p)
-
-				if _, ok := testPackages[dirName]; ok {
-					return nil
-				}
-
-				// TODO: this is costly, we should optimize to do it just once per package
-				//packageName := filepath.Base(dirName)
-				packageName, err := getPackageNameFromFile(p)
-
-				if err != nil {
-					return err
-				}
-
-				testPackages[dirName] = TestPackage{
-					Path:        dirName,
-					PackageName: packageName,
-				}
-			}
-
-			return nil
-		})
+	candidateFiles, err := FindCandidateFiles(basePath)
 	if err != nil {
 		return err
 	}
@@ -99,9 +55,8 @@ func init() {
 
 	// For each package
 	// Generate a pyroscope_test.go file
-	for _, v := range testPackages {
-		testFile := path.Join(v.Path, "pyroscope_test.go")
-		output, err := os.Create(testFile)
+	for _, v := range candidateFiles {
+		output, err := os.Create(v.Path)
 		if err != nil {
 			return err
 		}
@@ -125,23 +80,8 @@ func init() {
 			return err
 		}
 
-		fmt.Println("Created file", testFile)
+		fmt.Println("Created file", v.Path)
 	}
 
 	return nil
-}
-
-func getPackageNameFromFile(fileName string) (string, error) {
-	fset := token.NewFileSet()
-	ast, err := parser.ParseFile(fset, fileName, nil, parser.PackageClauseOnly)
-	if err != nil {
-		return "", err
-	}
-
-	return ast.Name.Name, nil
-}
-
-func isTestFile(p string) bool {
-	// TODO: is this enough?
-	return strings.HasSuffix(p, "_test.go")
 }
