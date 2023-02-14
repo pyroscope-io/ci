@@ -1,1 +1,6 @@
-exec pyroscope-ci exec -- docker run mytag
+exec docker ps
+pyroscope-ci
+#exec pyroscope-ci exec -- docker run --env PYROSCOPE_ADHOC_SERVER_ADDRESS mytag yarn test
+#exec pyroscope-ci exec --logLevel=debug -- docker run --link 'docker-host' --env PYROSCOPE_ADHOC_SERVER_ADDRESS curlimages/curl sh -c 'curl $(echo $PYROSCOPE_ADHOC_SERVER_ADDRESS | sed 's/localhost/docker-host/g')'
+#pyroscope-ci --help
+pyroscope-ci exec -- docker run --link 'docker-host' curlimages/curl sh -c 'curl http://docker-host:8000'

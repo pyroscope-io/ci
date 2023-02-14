@@ -8,8 +8,10 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	docker "github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
@@ -17,27 +19,56 @@ import (
 	"github.com/rogpeppe/go-internal/testscript"
 )
 
-func CopyFiles(env *testscript.Env) error {
-	from := "/Users/eduardo/work/pyroscope/ci/examples/nodejs/jest"
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return err
+func BuildImage(dockerfilePath string) func(env *testscript.Env) error {
+	return func(env *testscript.Env) error {
+		// TODO:
+		//from := "examples/nodejs/jest"
+		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("Building image")
+		return buildImage(context.Background(), cli, dockerfilePath, "mytag")
+	}
+}
+
+var proxyID string
+
+func StartProxy(ctx context.Context, cli *docker.Client) string {
+	// TODO: dirty check to not run the same proxy twice
+	// which seems to happen when invoking the binary
+	if proxyID != "" {
+		return proxyID
 	}
 
-	fmt.Println("Building image")
-	return buildImage(context.Background(), cli, from, "mytag")
-	//	err := cp.Copy(from, env.Cd, cp.Options{
-	//		Skip: func(info os.FileInfo, src, dest string) (bool, error) {
-	//			return strings.HasSuffix(src, ".git") || strings.HasSuffix(src, "node_modules"), nil
-	//		},
-	//	})
+	cfg := &container.Config{
+		Image: "qoomon/docker-host",
+	}
 
-	//return err
+	hc := &container.HostConfig{
+		CapAdd: []string{"NET_ADMIN", "NET_RAW"},
+	}
+
+	fmt.Println("creating container")
+	res, err := cli.ContainerCreate(ctx, cfg, hc, nil, nil, "docker-host")
+	if err != nil {
+		panic(err)
+	}
+
+	err = cli.ContainerStart(context.Background(), res.ID, types.ContainerStartOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	// TODO: wait for that container to be ready
+
+	return res.ID
 }
 
 // Make the pyroscope-ci binary available to the testscripts
 func TestMain(m *testing.M) {
-	os.Exit(testscript.RunMain(m, map[string]func() int{
+	exitCode := testscript.RunMain(m, map[string]func() int{
 		"pyroscope-ci": func() int {
 			err := cmd.RootCmd()
 			if err != nil {
@@ -46,13 +77,35 @@ func TestMain(m *testing.M) {
 
 			return 0
 		},
-	}))
+	})
+
+	fmt.Println("exiting", time.Now())
+	os.Exit(exitCode)
 }
 
 func TestE2E(t *testing.T) {
+	// TODO: run containers with different
+	fmt.Println("starting")
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
+
+	proxyIDRet := StartProxy(ctx, cli)
+	t.Cleanup(func() {
+		fmt.Println("Cleaning up")
+		err = cli.ContainerRemove(ctx, proxyIDRet, types.ContainerRemoveOptions{
+			Force: true,
+		})
+		if err != nil {
+			panic(err)
+		}
+	})
+
 	testscript.Run(t, testscript.Params{
 		// BuildImage, export its name as an env var
-		Setup: CopyFiles,
+		Setup: BuildImage("examples/nodejs/jest"),
 		Dir:   "./examples/nodejs/jest",
 	})
 }
@@ -70,10 +123,9 @@ func buildImage(ctx context.Context, cli *docker.Client, path, tag string) error
 	if err != nil {
 		return err
 	}
-	res, err := cli.ImageBuild(ctx, tar, types.ImageBuildOptions{Tags: []string{tag},
-		Remove:      true,
-		ForceRemove: true,
-	})
+	res, err := cli.ImageBuild(ctx, tar, types.ImageBuildOptions{Tags: []string{tag}}) //		Remove:      true,
+	//		ForceRemove: true,
+
 	if err != nil {
 		return err
 	}
