@@ -1,0 +1,1 @@
+exec pyroscope-ci exec -- docker run mytag
