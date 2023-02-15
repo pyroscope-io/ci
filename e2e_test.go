@@ -93,7 +93,7 @@ func buildImage(ctx context.Context, cli *docker.Client, path, tag string) error
 	// We rely on cache to rebuild it fast when existing.
 	// Since the original container may still exist, we need to force the image deletion
 	_, err := cli.ImageRemove(ctx, tag, types.ImageRemoveOptions{PruneChildren: true, Force: true})
-	if err != nil && !client.IsErrNotFound(err) {
+	if err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
 
@@ -212,7 +212,7 @@ func StartProxyDeprecated(t *testing.T) (string, func()) {
 
 func BuildImage(dockerfilePath string, imageName string) func(env *testscript.Env) error {
 	return func(env *testscript.Env) error {
-		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		cli, err := docker.NewClientWithOpts(docker.FromEnv, docker.WithAPIVersionNegotiation())
 		if err != nil {
 			return err
 		}
