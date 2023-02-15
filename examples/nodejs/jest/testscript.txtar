@@ -1,2 +1,2 @@
-pyroscope-ci exec --noUpload --logLevel=debug --export --outputDir=output -- docker run -v output:/output --link $PYROSCOPE_PROXY_ADDRESS --env PYROSCOPE_ADHOC_SERVER_ADDRESS --env DEBUG='pyroscope*' $IMAGE_NAME yarn test
-exists output/pyroscope.tests.cpu.json
+pyroscope-ci exec --noUpload --export -- docker run --link $PYROSCOPE_PROXY_ADDRESS --env PYROSCOPE_ADHOC_SERVER_ADDRESS $IMAGE_NAME yarn test
+exists pyroscope-ci-output/pyroscope.tests.cpu.json

@@ -1,7 +1,7 @@
 FROM node:18.4
 
-COPY package.json package.json
-COPY yarn.lock yarn.lock
+COPY package.json ./
+COPY yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 COPY . .

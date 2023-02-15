@@ -14,6 +14,7 @@ import (
 	"github.com/docker/docker/client"
 	docker "github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
+	cp "github.com/otiai10/copy"
 	"github.com/pyroscope-io/ci/cmd"
 	"github.com/rogpeppe/go-internal/testscript"
 	"github.com/testcontainers/testcontainers-go"
@@ -36,7 +37,7 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
-func TestE2E(t *testing.T) {
+func TestNodeJest(t *testing.T) {
 	containerName, cleanup := StartProxy2(t)
 	t.Cleanup(func() {
 		cleanup()
@@ -56,6 +57,34 @@ func TestE2E(t *testing.T) {
 		},
 		//		Setup: BuildImage("examples/nodejs/jest", "example-nodejs"),
 		Dir: "./examples/nodejs/jest",
+	})
+}
+
+func TestGo(t *testing.T) {
+	containerName, cleanup := StartProxy2(t)
+	t.Cleanup(func() {
+		cleanup()
+	})
+
+	testscript.Run(t, testscript.Params{
+		Setup: func(env *testscript.Env) error {
+			err := CopyFiles("./examples/go", env)
+			if err != nil {
+				return err
+			}
+
+			env.Vars = append(env.Vars, "PYROSCOPE_PROXY_ADDRESS="+containerName)
+
+			imageName := "example-go"
+			err = BuildImage("./examples/go", imageName)(env)
+			if err != nil {
+				return err
+			}
+			env.Vars = append(env.Vars, "IMAGE_NAME="+imageName)
+			return nil
+		},
+		//		Setup: BuildImage("examples/nodejs/jest", "example-nodejs"),
+		Dir: "./examples/go",
 	})
 }
 
@@ -191,4 +220,8 @@ func BuildImage(dockerfilePath string, imageName string) func(env *testscript.En
 		fmt.Println("Building image")
 		return buildImage(context.Background(), cli, dockerfilePath, imageName)
 	}
+}
+
+func CopyFiles(from string, env *testscript.Env) error {
+	return cp.Copy(from, env.Cd)
 }
