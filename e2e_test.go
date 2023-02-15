@@ -33,44 +33,6 @@ func BuildImage(dockerfilePath string, imageName string) func(env *testscript.En
 	}
 }
 
-var proxyID string
-
-func StartProxy(ctx context.Context, cli *docker.Client) string {
-	// TODO: dirty check to not run the same proxy twice
-	// which seems to happen when invoking the binary
-	if proxyID != "" {
-		return proxyID
-	}
-
-	cfg := &container.Config{
-		Image: "qoomon/docker-host",
-	}
-
-	hc := &container.HostConfig{
-		CapAdd: []string{"NET_ADMIN", "NET_RAW"},
-	}
-
-	//	_, err := cli.ImagePull(ctx, cfg.Image, types.ImagePullOptions{})
-	//	if err != nil {
-	//		panic(err)
-	//	}
-
-	fmt.Println("creating container")
-	res, err := cli.ContainerCreate(ctx, cfg, hc, nil, nil, "docker-host")
-	if err != nil {
-		panic(err)
-	}
-
-	err = cli.ContainerStart(context.Background(), res.ID, types.ContainerStartOptions{})
-	if err != nil {
-		panic(err)
-	}
-
-	// TODO: wait for that container to be ready
-
-	return res.ID
-}
-
 // Make the pyroscope-ci binary available to the testscripts
 func TestMain(m *testing.M) {
 	exitCode := testscript.RunMain(m, map[string]func() int{
@@ -89,33 +51,18 @@ func TestMain(m *testing.M) {
 }
 
 func TestE2E(t *testing.T) {
-	// TODO: run containers with different
-	fmt.Println("starting")
-	//	ctx := context.Background()
-	//	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	//	if err != nil {
-	//		panic(err)
-	//	}
-
-	cleanup := StartProxy2()
+	containerName, cleanup := StartProxy2(t)
 	t.Cleanup(func() {
 		cleanup()
 	})
 
-	//	proxyIDRet := StartProxy(ctx, cli)
-	//	t.Cleanup(func() {
-	//		fmt.Println("Cleaning up")
-	//		err = cli.ContainerRemove(ctx, proxyIDRet, types.ContainerRemoveOptions{
-	//			Force: true,
-	//		})
-	//		if err != nil {
-	//			panic(err)
-	//		}
-	//	})
-	//
 	testscript.Run(t, testscript.Params{
-		Setup: BuildImage("examples/nodejs/jest", "example-nodejs"),
-		Dir:   "./examples/nodejs/jest",
+		Setup: func(env *testscript.Env) error {
+			env.Vars = append(env.Vars, "PROXY_ADDRESS="+containerName)
+			return nil
+		},
+		//		Setup: BuildImage("examples/nodejs/jest", "example-nodejs"),
+		Dir: "./examples/nodejs/jest",
 	})
 }
 
@@ -160,7 +107,10 @@ func buildImage(ctx context.Context, cli *docker.Client, path, tag string) error
 	return nil
 }
 
-func StartProxy2() func() {
+// StartProxy2 starts a proxy that forward all requests to the host
+// This is necessary since the `pyroscope-ci` binary runs in the host
+// For more info see https://github.com/qoomon/docker-host
+func StartProxy2(t *testing.T) (string, func()) {
 	ctx := context.Background()
 	req := testcontainers.ContainerRequest{
 		Name:       "docker-host",
@@ -173,13 +123,67 @@ func StartProxy2() func() {
 		ContainerRequest: req,
 		Started:          true,
 	})
+
+	//	time.Sleep(time.Second * 35)
+	if err != nil {
+		t.Fatal(err)
+	}
+	containerName, err := container.Name(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	containerName = strings.TrimPrefix(containerName, "/")
+
+	return containerName, func() {
+		if err := container.Terminate(ctx); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func StartProxyDeprecated(t *testing.T) (string, func()) {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
 	}
-	return func() {
-		if err := container.Terminate(ctx); err != nil {
+	containerName := "docker-host"
+
+	// TODO: dirty check to not run the same proxy twice
+	// which seems to happen when invoking the binary
+	cfg := &container.Config{
+		Image: "qoomon/docker-host",
+	}
+
+	hc := &container.HostConfig{
+		CapAdd: []string{"NET_ADMIN", "NET_RAW"},
+	}
+
+	//	_, err := cli.ImagePull(ctx, cfg.Image, types.ImagePullOptions{})
+	//	if err != nil {
+	//		panic(err)
+	//	}
+
+	fmt.Println("creating container")
+	res, err := cli.ContainerCreate(ctx, cfg, hc, nil, nil, containerName)
+	if err != nil {
+		panic(err)
+	}
+
+	err = cli.ContainerStart(context.Background(), res.ID, types.ContainerStartOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	// TODO: wait for that container to be ready
+
+	return containerName, func() {
+		fmt.Println("removing container")
+		err := cli.ContainerRemove(ctx, res.ID, types.ContainerRemoveOptions{
+			Force: true,
+		})
+		if err != nil {
 			panic(err)
-			//			t.Fatalf("failed to terminate container: %s", err.Error())
 		}
 	}
 }
