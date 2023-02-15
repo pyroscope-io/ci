@@ -65,7 +65,14 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 		return time.Since(startingTime)
 	}
 
-	env := fmt.Sprintf("PYROSCOPE_ADHOC_SERVER_ADDRESS=http://localhost:%d", listener.Addr().(*net.TCPAddr).Port)
+	// TODO: dirty hack to allow pushing to a proxy
+	// Use case is running in docker, where a proxy forwards to the host machine
+	ingesterAddress := "http://localhost"
+	if os.Getenv("PYROSCOPE_PROXY_ADDRESS") != "" {
+		ingesterAddress = "http://" + os.Getenv("PYROSCOPE_PROXY_ADDRESS")
+	}
+
+	env := fmt.Sprintf("PYROSCOPE_ADHOC_SERVER_ADDRESS=%s:%d", ingesterAddress, listener.Addr().(*net.TCPAddr).Port)
 	cmd := osExec.Command(args[0], args[1:]...)
 	cmd.Env = append(os.Environ(), env)
 	cmd.Stderr = os.Stderr

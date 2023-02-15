@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -20,18 +19,6 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
-
-func BuildImage(dockerfilePath string, imageName string) func(env *testscript.Env) error {
-	return func(env *testscript.Env) error {
-		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("Building image")
-		return buildImage(context.Background(), cli, dockerfilePath, imageName)
-	}
-}
 
 // Make the pyroscope-ci binary available to the testscripts
 func TestMain(m *testing.M) {
@@ -46,7 +33,6 @@ func TestMain(m *testing.M) {
 		},
 	})
 
-	fmt.Println("exiting", time.Now())
 	os.Exit(exitCode)
 }
 
@@ -58,7 +44,14 @@ func TestE2E(t *testing.T) {
 
 	testscript.Run(t, testscript.Params{
 		Setup: func(env *testscript.Env) error {
-			env.Vars = append(env.Vars, "PROXY_ADDRESS="+containerName)
+			env.Vars = append(env.Vars, "PYROSCOPE_PROXY_ADDRESS="+containerName)
+
+			imageName := "example-nodejs"
+			err := BuildImage("./examples/nodejs/jest", imageName)(env)
+			if err != nil {
+				return err
+			}
+			env.Vars = append(env.Vars, "IMAGE_NAME="+imageName)
 			return nil
 		},
 		//		Setup: BuildImage("examples/nodejs/jest", "example-nodejs"),
@@ -185,5 +178,17 @@ func StartProxyDeprecated(t *testing.T) (string, func()) {
 		if err != nil {
 			panic(err)
 		}
+	}
+}
+
+func BuildImage(dockerfilePath string, imageName string) func(env *testscript.Env) error {
+	return func(env *testscript.Env) error {
+		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("Building image")
+		return buildImage(context.Background(), cli, dockerfilePath, imageName)
 	}
 }
