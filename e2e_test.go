@@ -11,7 +11,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 	docker "github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	cp "github.com/otiai10/copy"
@@ -165,7 +164,7 @@ func StartProxy2(t *testing.T) (string, func()) {
 
 func StartProxyDeprecated(t *testing.T) (string, func()) {
 	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := docker.NewClientWithOpts(docker.FromEnv, docker.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
 	}

@@ -7,5 +7,5 @@ import (
 )
 
 func TestFib(t *testing.T) {
-	fib.Fib(46)
+	fib.Fib(48)
 }
