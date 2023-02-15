@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  ci:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,9 +17,29 @@ jobs:
       - run: make install-dev-tools
       # Make asdf aware of globally installed binaries
       - run: asdf reshim
-
-      - run: make test
       - run: make lint
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v1
+      - run: make install-dev-tools
+      # Make asdf aware of globally installed binaries
+      - run: asdf reshim
+      - run: make test
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v1
+      - run: make install-dev-tools
+      # Make asdf aware of globally installed binaries
+      - run: asdf reshim
+      - run: make test-e2e
 
   build-matrix:
     name: Build Matrix

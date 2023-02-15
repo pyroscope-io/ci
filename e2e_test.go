@@ -32,7 +32,7 @@ func TestNodeJest(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Setup: Setup(
 			SetProxyAddressEnvVar(containerName),
-			SetupImageName("./examples/nodejs/jest", "example-nodejs"),
+			BuildImage("./examples/nodejs/jest", "example-nodejs"),
 		),
 		Dir: "./examples/nodejs/jest",
 	})
@@ -46,7 +46,7 @@ func TestGo(t *testing.T) {
 		Setup: Setup(
 			CopyFilesToCwd("./examples/go"),
 			SetProxyAddressEnvVar(containerName),
-			SetupImageName("./examples/go", "example-go"),
+			BuildImage("./examples/go", "example-go"),
 		),
 		Dir: "./examples/go",
 	})

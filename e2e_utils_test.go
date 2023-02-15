@@ -1,3 +1,6 @@
+//go:build e2e
+// +build e2e
+
 package main_test
 
 import (
@@ -31,7 +34,8 @@ func Setup(funcs ...setupFn) setupFn {
 	}
 }
 
-func SetupImageName(dockerfilePath string, imageName string) setupFn {
+// BuildImage builds an image and sets it as the IMAGE_NAME env var for usage in testscripts
+func BuildImage(dockerfilePath string, imageName string) setupFn {
 	return func(env *testscript.Env) error {
 		cli, err := docker.NewClientWithOpts(docker.FromEnv, docker.WithAPIVersionNegotiation())
 		if err != nil {
@@ -57,18 +61,6 @@ func SetProxyAddressEnvVar(containerName string) setupFn {
 func CopyFilesToCwd(from string) setupFn {
 	return func(env *testscript.Env) error {
 		return cp.Copy(from, env.Cd)
-	}
-}
-
-func BuildImage(dockerfilePath string, imageName string) func(env *testscript.Env) error {
-	return func(env *testscript.Env) error {
-		cli, err := docker.NewClientWithOpts(docker.FromEnv, docker.WithAPIVersionNegotiation())
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("Building image")
-		return buildImage(context.Background(), cli, dockerfilePath, imageName)
 	}
 }
 
@@ -118,8 +110,8 @@ func buildImage(ctx context.Context, cli *docker.Client, path, tag string) error
 func StartProxy(t *testing.T) (string, func()) {
 	ctx := context.Background()
 	req := testcontainers.ContainerRequest{
-		Name:       "docker-host",
-		Hostname:   "docker-host",
+		//		Name:       "docker-host",
+		//		Hostname:   "docker-host",
 		Image:      "qoomon/docker-host",
 		CapAdd:     []string{"NET_ADMIN", "NET_RAW"},
 		WaitingFor: wait.ForLog("Forwarding ports: 1-65535"),
@@ -129,7 +121,6 @@ func StartProxy(t *testing.T) (string, func()) {
 		Started:          true,
 	})
 
-	//	time.Sleep(time.Second * 35)
 	if err != nil {
 		t.Fatal(err)
 	}
