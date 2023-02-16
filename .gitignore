@@ -1,4 +1,5 @@
 bin
 pyroscope_test.go
 node_modules
-**/pyroscope-ci/*.json
+**/pyroscope-ci-output/*.json
+**/pyroscope-ci

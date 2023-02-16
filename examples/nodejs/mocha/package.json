@@ -1,0 +1,14 @@
+{
+  "name": "mocha-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha *.test.js"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@pyroscope/nodejs": "^0.2.5",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  }
+}
