@@ -6,6 +6,10 @@ build: ## Builds the binary
 test: ## Runs the test suite
 	go test -race $(shell go list ./...)
 
+.PHONY: test-e2e
+test-e2e: ## Runs the e2e test suite
+	go test e2e_*.go --tags=e2e
+
 .PHONY: test-install-script
 test-install-script: ## Tests the install in a docker container
 	docker run -v $(shell PWD)/install.sh:/data/install.sh:ro -it alpine/curl:latest sh -c '/data/install.sh'
