@@ -41,6 +41,19 @@ func TestNodeJest(t *testing.T) {
 	})
 }
 
+func TestNodeMocha(t *testing.T) {
+	containerName, cleanupProxy := StartProxy(t)
+	t.Cleanup(cleanupProxy)
+
+	testscript.Run(t, testscript.Params{
+		Setup: Setup(
+			SetProxyAddressEnvVar(containerName),
+			BuildImage("./examples/nodejs/mocha", "example-mocha"),
+		),
+		Dir: "./examples/nodejs/mocha",
+	})
+}
+
 func TestGo(t *testing.T) {
 	containerName, cleanupProxy := StartProxy(t)
 	t.Cleanup(cleanupProxy)
