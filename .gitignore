@@ -3,3 +3,7 @@ pyroscope_test.go
 node_modules
 **/pyroscope-ci-output/*.json
 **/pyroscope-ci
+
+examples/ruby/**/bin
+examples/ruby/**/.rspec_status
+examples/ruby/**/.bundle
