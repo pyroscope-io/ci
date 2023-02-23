@@ -18,6 +18,7 @@ end
 RSpec.configure do |config|
   config.before(:suite) do
     Pyroscope.configure do |config|
+      config.server_address = ENV["PYROSCOPE_ADHOC_SERVER_ADDRESS"]
       config.application_name = "ruby.tests"
     end
   end
