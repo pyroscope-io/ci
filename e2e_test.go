@@ -67,3 +67,16 @@ func TestGo(t *testing.T) {
 		Dir: "./examples/go",
 	})
 }
+
+func TestRubyRspec(t *testing.T) {
+	containerName, cleanupProxy := StartProxy(t)
+	t.Cleanup(cleanupProxy)
+
+	testscript.Run(t, testscript.Params{
+		Setup: Setup(
+			SetProxyAddressEnvVar(containerName),
+			BuildImage("./examples/ruby/rspec", "ruby-rspec"),
+		),
+		Dir: "./examples/ruby/rspec",
+	})
+}
