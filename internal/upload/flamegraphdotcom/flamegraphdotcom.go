@@ -35,10 +35,15 @@ func NewUploader(logger *logrus.Logger, serverURL string) *Uploader {
 	}
 }
 
-func (u *Uploader) UploadMultiple(ctx context.Context, filepath []string) ([]Response, error) {
+type UploadedFlamegraph struct {
+	Url      string
+	Filename string
+}
+
+func (u *Uploader) UploadMultiple(ctx context.Context, filepath []string) ([]UploadedFlamegraph, error) {
 	g, _ := errgroup.WithContext(ctx)
 
-	responses := make([]Response, len(filepath))
+	responses := make([]UploadedFlamegraph, len(filepath))
 
 	for i, f := range filepath {
 		f := f
@@ -47,7 +52,10 @@ func (u *Uploader) UploadMultiple(ctx context.Context, filepath []string) ([]Res
 		g.Go(func() error {
 			u.logger.Debug("uploading", f)
 			o, err := u.uploadSingle(ctx, f)
-			responses[i] = o
+			responses[i] = UploadedFlamegraph{
+				Url:      o.Url,
+				Filename: f,
+			}
 
 			return err
 		})
@@ -56,12 +64,12 @@ func (u *Uploader) UploadMultiple(ctx context.Context, filepath []string) ([]Res
 	return responses, g.Wait()
 }
 
-type Response struct {
+type FlamegraphDotComResponse struct {
 	Url string `json:"url"`
 }
 
-func (u *Uploader) uploadSingle(ctx context.Context, filepath string) (Response, error) {
-	var response Response
+func (u *Uploader) uploadSingle(ctx context.Context, filepath string) (FlamegraphDotComResponse, error) {
+	var response FlamegraphDotComResponse
 
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -72,6 +80,9 @@ func (u *Uploader) uploadSingle(ctx context.Context, filepath string) (Response,
 	if err != nil {
 		return response, err
 	}
+	q := req.URL.Query()
+	q.Add("file_name", filepath)
+	req.URL.RawQuery = q.Encode()
 
 	res, err := u.httpClient.Do(req)
 	if err != nil {
