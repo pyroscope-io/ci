@@ -4,19 +4,21 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pyroscope-io/ci/internal/upload/pyroscopecloud"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 )
 
 type ExecCfg struct {
-	OutputDir     string
-	ServerAddress string
-	APIKey        string
-	CommitSHA     string
-	Branch        string
-	NoUpload      bool
-	Export        bool
-	LogLevel      string
+	OutputDir         string
+	ServerAddress     string
+	APIKey            string
+	CommitSHA         string
+	Branch            string
+	NoUpload          bool
+	Export            bool
+	UploadToPublicApi bool
+	LogLevel          string
 }
 
 // Exec executes a program and exports its captured profiles
@@ -68,14 +70,14 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 	}
 
 	ciCtx := DetectContext(cfg)
-	uploader := NewUploader(logger, UploadConfig{
+	uploader := pyroscopecloud.NewUploader(logger, pyroscopecloud.UploadConfig{
 		// Generate a shared ID that will group different profiles
-		id:            ksuid.New(),
-		apiKey:        cfg.APIKey,
-		serverAddress: cfg.ServerAddress,
-		commitSHA:     ciCtx.CommitSHA,
-		branch:        ciCtx.BranchName,
-		duration:      duration,
+		Id:            ksuid.New(),
+		ApiKey:        cfg.APIKey,
+		ServerAddress: cfg.ServerAddress,
+		CommitSHA:     ciCtx.CommitSHA,
+		Branch:        ciCtx.BranchName,
+		Duration:      duration,
 	})
 
 	logger.Debugf("uploading %d profile(s)", len(ingestedItems))
@@ -84,5 +86,10 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 		return cmdError, fmt.Errorf("uploading profiles: %w", err)
 	}
 
+	//	if cfg.UploadToPublicApi {
+	//		flamegraphUploader := flamegraphdotcom.NewUploader(logger, "")
+	//		flamegraphUploader.UploadMultiple(context.Background(), ingestedItems)
+	//	}
+	//
 	return cmdError, nil
 }
