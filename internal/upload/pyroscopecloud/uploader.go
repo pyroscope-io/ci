@@ -16,12 +16,12 @@ import (
 )
 
 type UploadConfig struct {
-	ApiKey        string
+	APIKey        string
 	ServerAddress string
 	CommitSHA     string
 	Branch        string
 	Duration      time.Duration
-	Id            ksuid.KSUID
+	ID            ksuid.KSUID
 }
 
 type Uploader struct {
@@ -62,11 +62,11 @@ func (u *Uploader) Upload(ctx context.Context, items map[string]flamebearer.Flam
 
 func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerProfile) error {
 	serverAddress := u.cfg.ServerAddress
-	apiKey := u.cfg.ApiKey
+	apiKey := u.cfg.APIKey
 	commitSHA := u.cfg.CommitSHA
 	branch := u.cfg.Branch
 	duration := u.cfg.Duration.String()
-	id := u.cfg.Id.String()
+	id := u.cfg.ID.String()
 
 	date := time.Now()
 

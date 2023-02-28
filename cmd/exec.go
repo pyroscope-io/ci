@@ -42,7 +42,7 @@ func execCmd() *ffcli.Command {
 				Branch:            *branch,
 				LogLevel:          *logLevel,
 				Export:            *export,
-				UploadToPublicApi: *uploadToPublicAPI,
+				UploadToPublicAPI: *uploadToPublicAPI,
 			})
 
 			// If exec failed, print it first

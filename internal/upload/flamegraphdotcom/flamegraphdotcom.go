@@ -38,7 +38,7 @@ func NewUploader(logger *logrus.Logger, serverURL string) *Uploader {
 }
 
 type UploadedFlamegraph struct {
-	Url     string
+	URL     string
 	AppName string
 }
 
@@ -57,7 +57,7 @@ func (u *Uploader) Upload(ctx context.Context, items map[string]flamebearer.Flam
 			o, err := u.uploadSingle(ctx, appName, f)
 			mu.Lock()
 			responses = append(responses, UploadedFlamegraph{
-				Url:     o.Url,
+				URL:     o.URL,
 				AppName: appName,
 			})
 			mu.Unlock()
@@ -70,10 +70,10 @@ func (u *Uploader) Upload(ctx context.Context, items map[string]flamebearer.Flam
 }
 
 type FlamegraphDotComResponse struct {
-	Url string `json:"url"`
+	URL string `json:"url"`
 }
 
-func (u *Uploader) uploadSingle(ctx context.Context, appName string, item flamebearer.FlamebearerProfile) (FlamegraphDotComResponse, error) {
+func (u *Uploader) uploadSingle(_ context.Context, appName string, item flamebearer.FlamebearerProfile) (FlamegraphDotComResponse, error) {
 	var response FlamegraphDotComResponse
 
 	marshalled, err := json.Marshal(item)

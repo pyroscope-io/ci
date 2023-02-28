@@ -24,8 +24,8 @@ func TestUpload(t *testing.T) {
 	}
 
 	expected := []flamegraphdotcom.UploadedFlamegraph{
-		{Url: "my-url-for-app1", AppName: "my-app1"},
-		{Url: "my-url-for-app2", AppName: "my-app2"},
+		{URL: "my-url-for-app1", AppName: "my-app1"},
+		{URL: "my-url-for-app2", AppName: "my-app2"},
 	}
 	findFromAppName := func(appName string) flamegraphdotcom.UploadedFlamegraph {
 		for _, exp := range expected {
@@ -41,7 +41,7 @@ func TestUpload(t *testing.T) {
 		filename := r.URL.Query().Get("file_name")
 		exp := findFromAppName(filename)
 		if err := json.NewEncoder(w).Encode(flamegraphdotcom.FlamegraphDotComResponse{
-			Url: exp.Url,
+			URL: exp.URL,
 		}); err != nil {
 			panic(err)
 		}
@@ -67,8 +67,8 @@ func TestUpload(t *testing.T) {
 	for i, resp := range response {
 		exp := findFromAppName(resp.AppName)
 
-		if resp.Url != exp.Url {
-			t.Fatalf("expected response url to be '%s' but got '%s'", expected[i].Url, response[i].Url)
+		if resp.URL != exp.URL {
+			t.Fatalf("expected response url to be '%s' but got '%s'", expected[i].URL, response[i].URL)
 		}
 
 		if resp.AppName != exp.AppName {

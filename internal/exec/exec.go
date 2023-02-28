@@ -18,7 +18,7 @@ type ExecCfg struct {
 	Branch            string
 	NoUpload          bool
 	Export            bool
-	UploadToPublicApi bool
+	UploadToPublicAPI bool
 	LogLevel          string
 }
 
@@ -41,7 +41,7 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 
 	runner := NewRunner(logger)
 
-	if !cfg.Export && cfg.NoUpload && !cfg.UploadToPublicApi {
+	if !cfg.Export && cfg.NoUpload && !cfg.UploadToPublicAPI {
 		logger.Warn("not uploading, exporting and not uploading to public api, this does not look intended")
 		return nil, nil
 	}
@@ -72,8 +72,8 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 		ciCtx := DetectContext(cfg)
 		uploader := pyroscopecloud.NewUploader(logger, pyroscopecloud.UploadConfig{
 			// Generate a shared ID that will group different profiles
-			Id:            ksuid.New(),
-			ApiKey:        cfg.APIKey,
+			ID:            ksuid.New(),
+			APIKey:        cfg.APIKey,
 			ServerAddress: cfg.ServerAddress,
 			CommitSHA:     ciCtx.CommitSHA,
 			Branch:        ciCtx.BranchName,
@@ -87,7 +87,7 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 		}
 	}
 
-	if cfg.UploadToPublicApi {
+	if cfg.UploadToPublicAPI {
 		logger.Debugf("uploading %d profile(s)", len(ingestedItems))
 		flamegraphUploader := flamegraphdotcom.NewUploader(logger, "")
 		res, err := flamegraphUploader.Upload(context.Background(), ingestedItems)
@@ -97,7 +97,7 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 
 		logger.Info("Profiles have been uploaded to a public API:")
 		for _, r := range res {
-			logger.Info("\t", r.AppName, "\t", r.Url)
+			logger.Info("\t", r.AppName, "\t", r.URL)
 		}
 	}
 
