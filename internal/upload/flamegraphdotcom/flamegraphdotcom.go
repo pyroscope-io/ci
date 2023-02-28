@@ -1,14 +1,16 @@
 package flamegraphdotcom
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
+	"sync"
 	"time"
 
+	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -36,26 +38,29 @@ func NewUploader(logger *logrus.Logger, serverURL string) *Uploader {
 }
 
 type UploadedFlamegraph struct {
-	Url      string
-	Filename string
+	Url     string
+	AppName string
 }
 
-func (u *Uploader) UploadMultiple(ctx context.Context, filepath []string) ([]UploadedFlamegraph, error) {
+func (u *Uploader) Upload(ctx context.Context, items map[string]flamebearer.FlamebearerProfile) ([]UploadedFlamegraph, error) {
 	g, _ := errgroup.WithContext(ctx)
 
-	responses := make([]UploadedFlamegraph, len(filepath))
+	responses := make([]UploadedFlamegraph, 0)
 
-	for i, f := range filepath {
+	var mu sync.Mutex
+	for appName, f := range items {
 		f := f
-		i := i
+		appName := appName
 
 		g.Go(func() error {
-			u.logger.Debug("uploading", f)
-			o, err := u.uploadSingle(ctx, f)
-			responses[i] = UploadedFlamegraph{
-				Url:      o.Url,
-				Filename: f,
-			}
+			u.logger.Debug("uploading ", f.Metadata.Name)
+			o, err := u.uploadSingle(ctx, appName, f)
+			mu.Lock()
+			responses = append(responses, UploadedFlamegraph{
+				Url:     o.Url,
+				AppName: appName,
+			})
+			mu.Unlock()
 
 			return err
 		})
@@ -68,20 +73,21 @@ type FlamegraphDotComResponse struct {
 	Url string `json:"url"`
 }
 
-func (u *Uploader) uploadSingle(ctx context.Context, filepath string) (FlamegraphDotComResponse, error) {
+func (u *Uploader) uploadSingle(ctx context.Context, appName string, item flamebearer.FlamebearerProfile) (FlamegraphDotComResponse, error) {
 	var response FlamegraphDotComResponse
 
-	file, err := os.Open(filepath)
+	marshalled, err := json.Marshal(item)
 	if err != nil {
 		return response, err
 	}
 
+	file := bytes.NewReader(marshalled)
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/upload/v1", u.serverURL), file)
 	if err != nil {
 		return response, err
 	}
 	q := req.URL.Query()
-	q.Add("file_name", filepath)
+	q.Add("file_name", appName)
 	req.URL.RawQuery = q.Encode()
 
 	res, err := u.httpClient.Do(req)

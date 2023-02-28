@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/pyroscope-io/ci/internal/upload/flamegraphdotcom"
+	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,23 +18,28 @@ func TestUpload(t *testing.T) {
 	noopLogger := logrus.New()
 	noopLogger.SetOutput(io.Discard)
 
-	expected := []flamegraphdotcom.UploadedFlamegraph{
-		{Url: "my-url", Filename: "./testdata/single.json"},
-		{Url: "my-url", Filename: "./testdata/inuse_objects.json"},
+	data := map[string]flamebearer.FlamebearerProfile{
+		"my-app1": {},
+		"my-app2": {},
 	}
-	findFromFilename := func(filename string) flamegraphdotcom.UploadedFlamegraph {
+
+	expected := []flamegraphdotcom.UploadedFlamegraph{
+		{Url: "my-url-for-app1", AppName: "my-app1"},
+		{Url: "my-url-for-app2", AppName: "my-app2"},
+	}
+	findFromAppName := func(appName string) flamegraphdotcom.UploadedFlamegraph {
 		for _, exp := range expected {
-			if exp.Filename == filename {
+			if exp.AppName == appName {
 				return exp
 			}
 		}
 
-		panic(fmt.Sprintf("could not find file_name %s", filename))
+		panic(fmt.Sprintf("could not find file_name '%s'", appName))
 	}
 
 	svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		filename := r.URL.Query().Get("file_name")
-		exp := findFromFilename(filename)
+		exp := findFromAppName(filename)
 		if err := json.NewEncoder(w).Encode(flamegraphdotcom.FlamegraphDotComResponse{
 			Url: exp.Url,
 		}); err != nil {
@@ -46,10 +52,10 @@ func TestUpload(t *testing.T) {
 
 	filenames := make([]string, len(expected))
 	for i, f := range expected {
-		filenames[i] = f.Filename
+		filenames[i] = f.AppName
 	}
 
-	response, err := uploader.UploadMultiple(context.TODO(), filenames)
+	response, err := uploader.Upload(context.TODO(), data)
 	if err != nil {
 		t.Fatalf("expected err to be nil got %v", err)
 	}
@@ -59,14 +65,14 @@ func TestUpload(t *testing.T) {
 	}
 
 	for i, resp := range response {
-		exp := findFromFilename(resp.Filename)
+		exp := findFromAppName(resp.AppName)
 
 		if resp.Url != exp.Url {
 			t.Fatalf("expected response url to be '%s' but got '%s'", expected[i].Url, response[i].Url)
 		}
 
-		if resp.Filename != exp.Filename {
-			t.Fatalf("expected response filename to be '%s' but got '%s'", expected[i].Filename, response[i].Filename)
+		if resp.AppName != exp.AppName {
+			t.Fatalf("expected response filename to be '%s' but got '%s'", expected[i].AppName, response[i].AppName)
 		}
 	}
 }

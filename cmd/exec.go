@@ -19,7 +19,8 @@ func execCmd() *ffcli.Command {
 	apiKey := execFlagSet.String("apiKey", "", "")
 	commitSHA := execFlagSet.String("commitSHA", "", "the commit sha")
 	branch := execFlagSet.String("branch", "", "")
-	noUpload := execFlagSet.Bool("noUpload", false, "disables uploading")
+	noUpload := execFlagSet.Bool("noUpload", false, "disables uploading to the cloud")
+	uploadToPublicAPI := execFlagSet.Bool("uploadToPublicAPI", false, "uploads to public API (flamegraph.com)")
 	logLevel := execFlagSet.String("logLevel", "info", "")
 
 	return &ffcli.Command{
@@ -33,14 +34,15 @@ func execCmd() *ffcli.Command {
 			}
 
 			cmdError, err := exec.Exec(args, exec.ExecCfg{
-				OutputDir:     *outputDir,
-				APIKey:        *apiKey,
-				ServerAddress: *serverAddress,
-				CommitSHA:     *commitSHA,
-				NoUpload:      *noUpload,
-				Branch:        *branch,
-				LogLevel:      *logLevel,
-				Export:        *export,
+				OutputDir:         *outputDir,
+				APIKey:            *apiKey,
+				ServerAddress:     *serverAddress,
+				CommitSHA:         *commitSHA,
+				NoUpload:          *noUpload,
+				Branch:            *branch,
+				LogLevel:          *logLevel,
+				Export:            *export,
+				UploadToPublicApi: *uploadToPublicAPI,
 			})
 
 			// If exec failed, print it first

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pyroscope-io/ci/internal/upload/flamegraphdotcom"
 	"github.com/pyroscope-io/ci/internal/upload/pyroscopecloud"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
@@ -27,7 +28,8 @@ type ExecCfg struct {
 // Which then is uploaded to
 // a) a pyroscope server that supports the /ci API
 // b) to a local directory
-// c) both
+// c) to a public API (here flamegraph.com)
+// d) any combination of above options
 //
 // Notice that it returns 2 different errors:
 // cmdError refers to the error of the command exec'd
@@ -39,8 +41,8 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 
 	runner := NewRunner(logger)
 
-	if !cfg.Export && cfg.NoUpload {
-		logger.Warn("not uploading nor exporting, this does not look intended. use --export or disable --noUpload")
+	if !cfg.Export && cfg.NoUpload && !cfg.UploadToPublicApi {
+		logger.Warn("not uploading, exporting and not uploading to public api, this does not look intended")
 		return nil, nil
 	}
 
@@ -65,31 +67,39 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 	}
 
 	if cfg.NoUpload {
-		logger.Debug("not uploading since --noUpload flag is turned on")
-		return cmdError, nil
+		logger.Debug("not uploading to the cloud since --noUpload flag is turned on")
+	} else {
+		ciCtx := DetectContext(cfg)
+		uploader := pyroscopecloud.NewUploader(logger, pyroscopecloud.UploadConfig{
+			// Generate a shared ID that will group different profiles
+			Id:            ksuid.New(),
+			ApiKey:        cfg.APIKey,
+			ServerAddress: cfg.ServerAddress,
+			CommitSHA:     ciCtx.CommitSHA,
+			Branch:        ciCtx.BranchName,
+			Duration:      duration,
+		})
+
+		logger.Debugf("uploading %d profile(s) to cloud", len(ingestedItems))
+		err = uploader.Upload(context.Background(), ingestedItems)
+		if err != nil {
+			return cmdError, fmt.Errorf("uploading profiles: %w", err)
+		}
 	}
 
-	ciCtx := DetectContext(cfg)
-	uploader := pyroscopecloud.NewUploader(logger, pyroscopecloud.UploadConfig{
-		// Generate a shared ID that will group different profiles
-		Id:            ksuid.New(),
-		ApiKey:        cfg.APIKey,
-		ServerAddress: cfg.ServerAddress,
-		CommitSHA:     ciCtx.CommitSHA,
-		Branch:        ciCtx.BranchName,
-		Duration:      duration,
-	})
+	if cfg.UploadToPublicApi {
+		logger.Debugf("uploading %d profile(s)", len(ingestedItems))
+		flamegraphUploader := flamegraphdotcom.NewUploader(logger, "")
+		res, err := flamegraphUploader.Upload(context.Background(), ingestedItems)
+		if err != nil {
+			return cmdError, fmt.Errorf("uploading profiles to public api: %w", err)
+		}
 
-	logger.Debugf("uploading %d profile(s)", len(ingestedItems))
-	err = uploader.Upload(context.Background(), ingestedItems)
-	if err != nil {
-		return cmdError, fmt.Errorf("uploading profiles: %w", err)
+		logger.Info("Profiles have been uploaded to a public API:")
+		for _, r := range res {
+			logger.Info("\t", r.AppName, "\t", r.Url)
+		}
 	}
 
-	//	if cfg.UploadToPublicApi {
-	//		flamegraphUploader := flamegraphdotcom.NewUploader(logger, "")
-	//		flamegraphUploader.UploadMultiple(context.Background(), ingestedItems)
-	//	}
-	//
 	return cmdError, nil
 }
