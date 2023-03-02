@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/pyroscope-io/ci/compare/v1.3.0...v2.0.0) (2023-03-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* upload to flamegraph.com ([#36](https://github.com/pyroscope-io/ci/issues/36))
+
+### Features
+
+* upload to flamegraph.com ([#36](https://github.com/pyroscope-io/ci/issues/36)) ([a459bbd](https://github.com/pyroscope-io/ci/commit/a459bbd6ece982c409b670ccd0e1dd23b552dd3e))
+
 ## [1.3.0](https://github.com/pyroscope-io/ci/compare/v1.2.1...v1.3.0) (2023-02-24)
 
 
