@@ -1,5 +1,5 @@
 pyroscope-ci go install --applicationName=myapp .
-pyroscope-ci exec --noUpload --export -- docker run -v $WORK:/app --link $PYROSCOPE_PROXY_ADDRESS --env PYROSCOPE_ADHOC_SERVER_ADDRESS $IMAGE_NAME sh -c 'go test ./... -v'
+pyroscope-ci exec --uploadToCloud=false --exportLocally -- docker run -v $WORK:/app --link $PYROSCOPE_PROXY_ADDRESS --env PYROSCOPE_ADHOC_SERVER_ADDRESS $IMAGE_NAME sh -c 'go test ./... -v'
 
 exists pyroscope-ci-output/myapp.cpu.json
 exists pyroscope-ci-output/myapp.goroutines.json

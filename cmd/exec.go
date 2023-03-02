@@ -13,13 +13,14 @@ import (
 func execCmd() *ffcli.Command {
 	execFlagSet := flag.NewFlagSet("exec", flag.ExitOnError)
 
-	export := execFlagSet.Bool("export", false, "exports data to a local directory, used in conjunction with --outputDir")
-	outputDir := execFlagSet.String("outputDir", "pyroscope-ci-output", "where the generated profiles will be saved to. only available if --export is set")
-	serverAddress := execFlagSet.String("serverAddress", "https://pyroscope.cloud", "")
+	exportLocally := execFlagSet.Bool("exportLocally", false, "exports data to a local directory, used in conjunction with --outputDir")
+	outputDir := execFlagSet.String("outputDir", "pyroscope-ci-output", "where the generated profiles will be saved to. only available if --exportLocally is set")
+	cloudServerAddress := execFlagSet.String("serverAddress", "https://pyroscope.cloud", "")
 	apiKey := execFlagSet.String("apiKey", "", "")
 	commitSHA := execFlagSet.String("commitSHA", "", "the commit sha")
 	branch := execFlagSet.String("branch", "", "")
-	noUpload := execFlagSet.Bool("noUpload", false, "disables uploading")
+	uploadToCloud := execFlagSet.Bool("uploadToCloud", true, "uploads to pyroscope cloud")
+	uploadToPublicAPI := execFlagSet.Bool("uploadToPublicAPI", false, "uploads to public API (flamegraph.com)")
 	logLevel := execFlagSet.String("logLevel", "info", "")
 
 	return &ffcli.Command{
@@ -33,14 +34,15 @@ func execCmd() *ffcli.Command {
 			}
 
 			cmdError, err := exec.Exec(args, exec.ExecCfg{
-				OutputDir:     *outputDir,
-				APIKey:        *apiKey,
-				ServerAddress: *serverAddress,
-				CommitSHA:     *commitSHA,
-				NoUpload:      *noUpload,
-				Branch:        *branch,
-				LogLevel:      *logLevel,
-				Export:        *export,
+				OutputDir:         *outputDir,
+				APIKey:            *apiKey,
+				ServerAddress:     *cloudServerAddress,
+				CommitSHA:         *commitSHA,
+				UploadToCloud:     *uploadToCloud,
+				Branch:            *branch,
+				LogLevel:          *logLevel,
+				Export:            *exportLocally,
+				UploadToPublicAPI: *uploadToPublicAPI,
 			})
 
 			// If exec failed, print it first

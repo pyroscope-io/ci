@@ -1,4 +1,4 @@
-package exec
+package pyroscopecloud
 
 import (
 	"bytes"
@@ -16,12 +16,12 @@ import (
 )
 
 type UploadConfig struct {
-	apiKey        string
-	serverAddress string
-	commitSHA     string
-	branch        string
-	duration      time.Duration
-	id            ksuid.KSUID
+	APIKey        string
+	ServerAddress string
+	CommitSHA     string
+	Branch        string
+	Duration      time.Duration
+	ID            ksuid.KSUID
 }
 
 type Uploader struct {
@@ -61,12 +61,12 @@ func (u *Uploader) Upload(ctx context.Context, items map[string]flamebearer.Flam
 }
 
 func (u *Uploader) uploadSingle(_ context.Context, item flamebearer.FlamebearerProfile) error {
-	serverAddress := u.cfg.serverAddress
-	apiKey := u.cfg.apiKey
-	commitSHA := u.cfg.commitSHA
-	branch := u.cfg.branch
-	duration := u.cfg.duration.String()
-	id := u.cfg.id.String()
+	serverAddress := u.cfg.ServerAddress
+	apiKey := u.cfg.APIKey
+	commitSHA := u.cfg.CommitSHA
+	branch := u.cfg.Branch
+	duration := u.cfg.Duration.String()
+	id := u.cfg.ID.String()
 
 	date := time.Now()
 

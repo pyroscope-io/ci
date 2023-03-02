@@ -1,2 +1,2 @@
-pyroscope-ci exec --noUpload --export -- docker run --link $PYROSCOPE_PROXY_ADDRESS --env PYROSCOPE_ADHOC_SERVER_ADDRESS $IMAGE_NAME yarn test
+pyroscope-ci exec --uploadToCloud=false --exportLocally -- docker run --link $PYROSCOPE_PROXY_ADDRESS --env PYROSCOPE_ADHOC_SERVER_ADDRESS $IMAGE_NAME yarn test
 exists pyroscope-ci-output/pyroscope.tests.cpu.json
