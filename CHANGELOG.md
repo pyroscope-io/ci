@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/pyroscope-io/ci/compare/v1.2.1...v1.3.0) (2023-02-24)
+
+
+### Features
+
+* add a go uninstall subcommand ([#31](https://github.com/pyroscope-io/ci/issues/31)) ([29d965c](https://github.com/pyroscope-io/ci/commit/29d965c6ec321b99e684d6797c0783a8ee110a43))
+
 ## [1.2.1](https://github.com/pyroscope-io/ci/compare/v1.2.0...v1.2.1) (2023-02-07)
 
 
