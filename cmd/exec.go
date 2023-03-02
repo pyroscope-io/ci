@@ -38,7 +38,7 @@ func execCmd() *ffcli.Command {
 				APIKey:            *apiKey,
 				ServerAddress:     *cloudServerAddress,
 				CommitSHA:         *commitSHA,
-				NoUpload:          *uploadToCloud,
+				UploadToCloud:     *uploadToCloud,
 				Branch:            *branch,
 				LogLevel:          *logLevel,
 				Export:            *exportLocally,

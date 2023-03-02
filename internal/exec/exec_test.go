@@ -15,7 +15,7 @@ func TestCapturingCmdError(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	// Running an unknown command, we should get back an error
-	cfg := exec.ExecCfg{NoUpload: true, Export: true, OutputDir: dir}
+	cfg := exec.ExecCfg{UploadToCloud: true, Export: true, OutputDir: dir}
 	cmdError, err := exec.Exec([]string{"unknown command"}, cfg)
 	if err != nil {
 		t.Error("did not expect error to happen")

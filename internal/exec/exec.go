@@ -16,7 +16,7 @@ type ExecCfg struct {
 	APIKey            string
 	CommitSHA         string
 	Branch            string
-	NoUpload          bool
+	UploadToCloud     bool
 	Export            bool
 	UploadToPublicAPI bool
 	LogLevel          string
@@ -41,7 +41,7 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 
 	runner := NewRunner(logger)
 
-	if !cfg.Export && cfg.NoUpload && !cfg.UploadToPublicAPI {
+	if !cfg.Export && !cfg.UploadToCloud && !cfg.UploadToPublicAPI {
 		logger.Warn("not uploading, exporting and not uploading to public api, this does not look intended")
 		return nil, nil
 	}
@@ -66,9 +66,7 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 		}
 	}
 
-	if cfg.NoUpload {
-		logger.Debug("not uploading to the cloud since --noUpload flag is turned on")
-	} else {
+	if cfg.UploadToCloud {
 		ciCtx := DetectContext(cfg)
 		uploader := pyroscopecloud.NewUploader(logger, pyroscopecloud.UploadConfig{
 			// Generate a shared ID that will group different profiles
