@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	osExec "os/exec"
 	"os/signal"
 	"time"
@@ -99,7 +98,7 @@ func (p *Runner) Run(args []string) (map[string]flamebearer.FlamebearerProfile, 
 				logrus.Debug("child process exited")
 				err := cmd.Wait()
 
-				if exiterr, ok := err.(*exec.ExitError); ok {
+				if exiterr, ok := err.(*osExec.ExitError); ok {
 					err = fmt.Errorf("exit code %d: %v", exiterr.ExitCode(), err)
 				}
 
