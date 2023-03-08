@@ -33,14 +33,20 @@ func execCmd() *ffcli.Command {
 				return fmt.Errorf("at least one argument is required")
 			}
 
-			cmdError, err := exec.Exec(args, exec.ExecCfg{
+			l, err := logrus.ParseLevel(*logLevel)
+			if err != nil {
+				return fmt.Errorf("parsing log level: %w", err)
+			}
+			logger := logrus.New()
+			logger.SetLevel(l)
+
+			cmdError, err := exec.Exec(logger, args, exec.ExecCfg{
 				OutputDir:         *outputDir,
 				APIKey:            *apiKey,
 				ServerAddress:     *cloudServerAddress,
 				CommitSHA:         *commitSHA,
 				UploadToCloud:     *uploadToCloud,
 				Branch:            *branch,
-				LogLevel:          *logLevel,
 				Export:            *exportLocally,
 				UploadToPublicAPI: *uploadToPublicAPI,
 			})
@@ -50,11 +56,12 @@ func execCmd() *ffcli.Command {
 				return err
 			}
 
-			// Add additional context, since it may be weird to just see "exit eror code X"
 			if cmdError != nil {
-				logrus.Error("error in spawned command")
+				// Add additional context, since it may be weird to just see "exit eror code X"
+				return fmt.Errorf("error in spawned command: %w", cmdError)
 			}
-			return cmdError
+
+			return nil
 		},
 	}
 }
