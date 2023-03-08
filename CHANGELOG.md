@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/pyroscope-io/ci/compare/v2.0.0...v2.0.1) (2023-03-08)
+
+
+### Bug Fixes
+
+* capture exit code ([#39](https://github.com/pyroscope-io/ci/issues/39)) ([b9d1d31](https://github.com/pyroscope-io/ci/commit/b9d1d315fc29085462379015cb0084ef44d38149))
+
 ## [2.0.0](https://github.com/pyroscope-io/ci/compare/v1.3.0...v2.0.0) (2023-03-02)
 
 
