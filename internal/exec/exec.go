@@ -19,7 +19,6 @@ type ExecCfg struct {
 	UploadToCloud     bool
 	Export            bool
 	UploadToPublicAPI bool
-	LogLevel          string
 }
 
 // Exec executes a program and exports its captured profiles
@@ -34,11 +33,7 @@ type ExecCfg struct {
 // Notice that it returns 2 different errors:
 // cmdError refers to the error of the command exec'd
 // and err to any other error
-func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
-	logger := logrus.StandardLogger()
-	lvl, _ := logrus.ParseLevel(cfg.LogLevel)
-	logger.SetLevel(lvl)
-
+func Exec(logger *logrus.Logger, args []string, cfg ExecCfg) (cmdError error, err error) {
 	runner := NewRunner(logger)
 
 	if !cfg.Export && !cfg.UploadToCloud && !cfg.UploadToPublicAPI {
@@ -48,8 +43,8 @@ func Exec(args []string, cfg ExecCfg) (cmdError error, err error) {
 
 	logger.Debug("exec'ing command")
 	ingestedItems, duration, cmdError := runner.Run(args)
-	if err != nil {
-		logger.Errorf("process errored: %s. will still try to upload ingested data", err)
+	if cmdError != nil {
+		logger.Debug("process errored. will still try to upload ingested data", cmdError)
 	}
 
 	if len(ingestedItems) <= 0 {
