@@ -56,8 +56,12 @@ func execCmd() *ffcli.Command {
 				return err
 			}
 
-			// Add additional context, since it may be weird to just see "exit eror code X"
-			return fmt.Errorf("error in spawned command: %w", cmdError)
+			if cmdError != nil {
+				// Add additional context, since it may be weird to just see "exit eror code X"
+				return fmt.Errorf("error in spawned command: %w", cmdError)
+			}
+
+			return nil
 		},
 	}
 }
